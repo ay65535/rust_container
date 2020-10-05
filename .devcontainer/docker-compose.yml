@@ -1,0 +1,25 @@
+version: "3"
+services:
+  main:
+    env_file: ../.env
+    volumes:
+      # - ../:/workspaces/rust_container:delegated
+      - vol-bashhistory:/commandhistory
+      - vol-extensions-insiders:/home/vscode/.vscode-server-insiders/extensions
+    # working_dir: /home/vscode
+    # user: vscode
+    build:
+      context: .
+      # user: root
+      dockerfile: Dockerfile
+      args:
+        # USERNAME: vscode
+        http_proxy: ${http_proxy}
+        https_proxy: ${https_proxy}
+    environment:
+      http_proxy: ${http_proxy}
+      https_proxy: ${https_proxy}
+    tty: true
+volumes:
+  vol-bashhistory:
+  vol-extensions-insiders:
