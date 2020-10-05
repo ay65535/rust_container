@@ -1,25 +1,32 @@
-version: "3"
+version: "3.4"
 services:
   main:
     env_file: ../.env
-    volumes:
-      # - ../:/workspaces/rust_container:delegated
-      - vol-bashhistory:/commandhistory
-      - vol-extensions-insiders:/home/vscode/.vscode-server-insiders/extensions
-    # working_dir: /home/vscode
-    # user: vscode
-    build:
-      context: .
-      # user: root
-      dockerfile: Dockerfile
-      args:
-        # USERNAME: vscode
-        http_proxy: ${http_proxy}
-        https_proxy: ${https_proxy}
     environment:
       http_proxy: ${http_proxy}
       https_proxy: ${https_proxy}
-    tty: true
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        http_proxy: ${http_proxy}
+        https_proxy: ${https_proxy}
+    volumes:
+      # Mounts the project folder to '/workspaces/rust_container'. While this file is in .devcontainer,
+      # mounts are relative to the first file in the list, which is a level up.
+      - ../:/workspaces/rust_container:cached
+      - vol-bashhistory:/commandhistory
+      - vol-extensions-insiders:/root/.vscode-server-insiders/extensions
+      # - vol-extensions-insiders:/home/vscode/.vscode-server-insiders/extensions
+    # Required for ptrace-based debuggers like C++, Go, and Rust
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined
+    # Overrides default command so things don't shut down after the process ends.
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    # tty: true
 volumes:
   vol-bashhistory:
   vol-extensions-insiders:
